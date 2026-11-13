@@ -8,8 +8,11 @@ import net.minecraft.util.Identifier;
 
 public class ModEffects {
     public static final StatusEffect CYBERPSYCHOSIS = new CyberpsychosisEffect();
+    public static final StatusEffect SANDEVISTAN = new SandevistanEffect();
 
     public static void register() {
+        Registry.register(Registries.STATUS_EFFECT,
+                new Identifier(EdgerunnersMod.MOD_ID, "sandevistan"), SANDEVISTAN);
         Registry.register(Registries.STATUS_EFFECT,
                 new Identifier(EdgerunnersMod.MOD_ID, "cyberpsychosis"), CYBERPSYCHOSIS);
     }

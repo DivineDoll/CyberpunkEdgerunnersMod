@@ -42,6 +42,8 @@ public class SandevistanItem extends Item {
             user.addStatusEffect(new StatusEffectInstance(StatusEffects.HASTE, 200, 3));
             user.addStatusEffect(new StatusEffectInstance(StatusEffects.JUMP_BOOST, 200, 1));
             user.addStatusEffect(new StatusEffectInstance(ModEffects.CYBERPSYCHOSIS, 300, 0));
+            // Marcador que activa la estela de imágenes fantasma y el tinte verde en el cliente
+            user.addStatusEffect(new StatusEffectInstance(ModEffects.SANDEVISTAN, 200, 0, false, false, true));
 
             Box area = user.getBoundingBox().expand(12.0);
             for (LivingEntity other : world.getEntitiesByClass(LivingEntity.class, area,

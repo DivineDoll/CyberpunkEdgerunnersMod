@@ -10,8 +10,10 @@
   "icon": "assets/edgerunners/icon.png",
   "environment": "*",
   "entrypoints": {
-    "main": ["com.divinedoll.edgerunners.EdgerunnersMod"]
+    "main": ["com.divinedoll.edgerunners.EdgerunnersMod"],
+    "client": ["com.divinedoll.edgerunners.client.EdgerunnersClient"]
   },
+  "mixins": ["edgerunners.mixins.json"],
   "depends": {
     "fabricloader": ">=0.14.21",
     "minecraft": "~1.20.1",

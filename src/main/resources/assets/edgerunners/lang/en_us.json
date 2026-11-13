@@ -3,8 +3,9 @@
   "item.edgerunners.sandevistan": "Sandevistan",
   "item.edgerunners.sandevistan.tooltip": "Right-click: speed, haste and jump boost while nearby mobs slow down. 30s cooldown.",
   "item.edgerunners.mantis_blades": "Mantis Blades",
-  "item.edgerunners.mantis_blades.tooltip": "Fast blades that leave targets bleeding.",
+  "item.edgerunners.mantis_blades.tooltip": "Fast blades that leave targets bleeding. One blade on each arm.",
   "item.edgerunners.stim": "Stim Injector",
   "item.edgerunners.stim.tooltip": "Right-click: quick regeneration and absorption. Single use.",
-  "effect.edgerunners.cyberpsychosis": "Cyberpsychosis"
+  "effect.edgerunners.cyberpsychosis": "Cyberpsychosis",
+  "effect.edgerunners.sandevistan": "Sandevistan"
 }

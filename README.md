@@ -4,8 +4,8 @@ Mod no oficial inspirado en *Cyberpunk: Edgerunners* (temporada 1). No está afi
 
 ## Contenido
 
-- **Sandevistan**: clic derecho para obtener velocidad, prisa y salto mientras los mobs cercanos se ralentizan. Te deja con cyberpsicosis un rato y tiene 30 s de enfriamiento.
-- **Hojas mantis**: espada rápida que deja sangrando (Wither corto) al objetivo.
+- **Sandevistan**: clic derecho para obtener velocidad, prisa y salto mientras los mobs cercanos se ralentizan. Dejas una estela de imágenes fantasma cian-verdes que se desvanecen y la pantalla se tiñe de verde. Te deja con cyberpsicosis un rato y tiene 30 s de enfriamiento.
+- **Hojas mantis**: espada rápida con modelo 3D que deja sangrando (Wither corto) al objetivo. Llevas una hoja en cada brazo: sostén el ítem en una mano y deja la otra vacía.
 - **Inyector de stim**: regeneración rápida y absorción. Un solo uso.
 - **Cyberpsicosis** (efecto): más daño de ataque, pero te desgasta poco a poco. Nunca te baja de 1 corazón.
 

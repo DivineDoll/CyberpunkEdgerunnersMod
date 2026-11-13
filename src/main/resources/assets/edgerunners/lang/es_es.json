@@ -1,7 +1,7 @@
 {
   "itemGroup.edgerunners.main": "Edgerunners",
   "item.edgerunners.sandevistan": "Sandevistan",
-  "item.edgerunners.sandevistan.tooltip": "Clic derecho: velocidad, prisa y salto mientras los mobs cercanos se ralentizan. 30 s de enfriamiento.",
+  "item.edgerunners.sandevistan.tooltip": "Clic derecho: te mueves a toda velocidad mientras el tiempo se ralentiza a tu alrededor (8 bloques). 30 s de enfriamiento.",
   "item.edgerunners.mantis_blades": "Hojas mantis",
   "item.edgerunners.mantis_blades.tooltip": "Hojas rápidas que dejan sangrando al objetivo. Una hoja en cada brazo.",
   "item.edgerunners.stim": "Inyector de stim",

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "edgerunners",
+  "version": "${version}",
+  "name": "Edgerunners",
+  "description": "Mod fan no oficial inspirado en Cyberpunk: Edgerunners (temporada 1). Implante Sandevistan, hojas mantis, stims y cyberpsicosis. No está afiliado con los creadores de la serie.",
+  "authors": ["DivineDoll"],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/edgerunners/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.divinedoll.edgerunners.EdgerunnersMod"]
+  },
+  "depends": {
+    "fabricloader": ">=0.14.21",
+    "minecraft": "~1.20.1",
+    "java": ">=17",
+    "fabric-api": "*"
+  }
+}

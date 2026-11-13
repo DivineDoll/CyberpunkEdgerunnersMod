@@ -1,0 +1,10 @@
+{
+  "itemGroup.edgerunners.main": "Edgerunners",
+  "item.edgerunners.sandevistan": "Sandevistan",
+  "item.edgerunners.sandevistan.tooltip": "Clic derecho: velocidad, prisa y salto mientras los mobs cercanos se ralentizan. 30 s de enfriamiento.",
+  "item.edgerunners.mantis_blades": "Hojas mantis",
+  "item.edgerunners.mantis_blades.tooltip": "Hojas rápidas que dejan sangrando al objetivo.",
+  "item.edgerunners.stim": "Inyector de stim",
+  "item.edgerunners.stim.tooltip": "Clic derecho: regeneración rápida y absorción. Un solo uso.",
+  "effect.edgerunners.cyberpsychosis": "Cyberpsicosis"
+}

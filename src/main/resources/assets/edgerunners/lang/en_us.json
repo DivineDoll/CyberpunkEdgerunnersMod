@@ -3,7 +3,7 @@
   "item.edgerunners.sandevistan": "Sandevistan",
   "item.edgerunners.sandevistan.tooltip": "Right-click: you move at full speed while time slows around you (8 blocks). 30s cooldown.",
   "item.edgerunners.mantis_blades": "Mantis Blades",
-  "item.edgerunners.mantis_blades.tooltip": "Fast blades that leave targets bleeding. One blade on each arm.",
+  "item.edgerunners.mantis_blades.tooltip": "Fast blades that leave targets bleeding. One blade on each arm. Right-click: retract / deploy.",
   "item.edgerunners.stim": "Stim Injector",
   "item.edgerunners.stim.tooltip": "Right-click: quick regeneration and absorption. Single use.",
   "effect.edgerunners.cyberpsychosis": "Cyberpsychosis",

@@ -16,8 +16,10 @@ import java.util.List;
  * proyectiles) dentro de RADIUS bloques solo avanzan 1 de cada FACTOR ticks.
  */
 public final class TimeSlow {
-    public static final double RADIUS = 8.0;
-    public static final int FACTOR = 4;
+    /** Alcance de la ralentización, en bloques. */
+    public static final double RADIUS = 20.0;
+    /** Las entidades afectadas solo avanzan 1 de cada FACTOR ticks (1/20 = 5 % de la velocidad). */
+    public static final int FACTOR = 20;
 
     private static final List<ServerPlayerEntity> ACTIVE = new ArrayList<>();
     private static ServerWorld cachedWorld;

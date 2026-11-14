@@ -15,24 +15,37 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 
 /**
  * Dibuja las hojas mantis con animación (Minecraft no admite ángulos intermedios en los
  * modelos JSON, así que las piezas se dibujan a mano):
  * - Despliegue / pliegue: la hoja gira desde la bisagra y sale como un resorte.
- * - Ataque (primera persona): tajo rápido que abre un poco más la hoja.
+ * - Ataque: tajo rápido que abre un poco más la hoja.
  * - Brillo pulsante: los LED cian y las líneas rojas laten.
  * - El brazo blanco articulado se recalcula cada cuadro (cinemática inversa de 2 tramos).
+ *
+ * Hay dos formas de usarlo:
+ * - render(): como ítem (tercera persona, inventario, suelo), con las transformaciones del modelo JSON.
+ * - renderOnArm(): en primera persona, montado directamente sobre el antebrazo del jugador.
  */
 public class MantisBladesRenderer implements BuiltinItemRendererRegistry.DynamicItemRenderer {
     private static final Identifier TEXTURE =
             new Identifier(EdgerunnersMod.MOD_ID, "textures/item/mantis_blade_pro.png");
     private static final float TEX = 64.0f;
 
+    // Montaje sobre el antebrazo (unidades de pixel del modelo del brazo)
+    private static final float MOUNT_SCALE = 0.65f;  // tamaño de las hojas respecto al modelo
+    private static final float MOUNT_UP = 2.4f;      // altura del eje de la carcasa sobre el centro del brazo
+    private static final float MOUNT_Y0 = 0.5f;      // posición de la bisagra a lo largo del brazo
+    private static final float SQRT_HALF = 0.70710678f;
+
     // Baldosas de la textura usadas por el brazo articulado y las juntas
     private static final int[] UV_WHITE = uniform(0, 8, 8, 16);
     private static final int[] UV_CLAMP = uniform(40, 8, 48, 16);
     private static final int[] UV_CYAN = uniform(48, 8, 56, 16);
+
+    // ------------------------------------------------------------------ como ítem
 
     @Override
     public void render(ItemStack stack, ModelTransformationMode mode, MatrixStack matrices,
@@ -50,10 +63,66 @@ public class MantisBladesRenderer implements BuiltinItemRendererRegistry.Dynamic
         }
         float time = (mc.world != null ? mc.world.getTime() : 0L) + delta;
 
+        VertexConsumer vc = consumers.getBuffer(RenderLayer.getEntityCutoutNoCull(TEXTURE));
+
+        matrices.push();
+        matrices.scale(1.0f / 16.0f, 1.0f / 16.0f, 1.0f / 16.0f);
+        // El modelo se diseñó con el pivote en (PIVOT_X, PIVOT_Y) y la carcasa a 22.5 grados
+        matrices.translate(MantisBladesParts.PIVOT_X, MantisBladesParts.PIVOT_Y, 8.0f);
+        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(MantisBladesParts.HOUSING_ANGLE));
+        drawPivotSpace(matrices, vc, light, overlay, deploy, swing, time);
+        matrices.pop();
+    }
+
+    // ------------------------------------------------------------------ sobre el antebrazo
+
+    /**
+     * Dibuja las hojas montadas sobre el antebrazo en primera persona.
+     * Se llama con la pila de matrices ya colocada en el espacio del brazo (el mismo en el que
+     * se dibuja el brazo con la skin): en ese espacio el eje Y apunta del codo a la mano.
+     * El lado de arriba del brazo es -X para el derecho y +X para el izquierdo.
+     */
+    public static void renderOnArm(MatrixStack matrices, VertexConsumerProvider consumers, int light,
+                                   int overlay, boolean right, boolean slim, float swing) {
+        MinecraftClient mc = MinecraftClient.getInstance();
+        float delta = mc.getTickDelta();
+        float deploy = MantisAnimation.deploy(delta);
+        float time = (mc.world != null ? mc.world.getTime() : 0L) + delta;
+        VertexConsumer vc = consumers.getBuffer(RenderLayer.getEntityCutoutNoCull(TEXTURE));
+
+        float side = right ? 1.0f : -1.0f;
+        float centerX = -side * (slim ? 0.5f : 1.0f);   // centro del brazo respecto a su pivote
+        float pivotX = -side * 5.0f;                    // pivote del hombro
+
+        matrices.push();
+        matrices.translate(pivotX / 16.0f, 2.0f / 16.0f, 0.0f);
+        matrices.translate((centerX - side * MOUNT_UP) / 16.0f, MOUNT_Y0 / 16.0f, 0.0f);
+        if (right) {
+            // eje de la carcasa -> Y del brazo, arriba de la carcasa -> -X
+            matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(90.0f));
+        } else {
+            // eje de la carcasa -> Y del brazo, arriba de la carcasa -> +X (giro de 180 grados sobre (1,1,0))
+            matrices.multiply(new Quaternionf().rotationAxis((float) Math.PI, SQRT_HALF, SQRT_HALF, 0.0f));
+        }
+        float s = MOUNT_SCALE / 16.0f;
+        matrices.scale(s, s, s);
+        drawPivotSpace(matrices, vc, light, overlay, deploy, swing, time);
+        matrices.pop();
+    }
+
+    // ------------------------------------------------------------------ dibujo
+
+    /**
+     * Dibuja todo en el "espacio del pivote": el origen es la bisagra, la carcasa del antebrazo va
+     * a lo largo de +X, +Y es "arriba" de la carcasa y Z queda centrada en 0. Las unidades son
+     * pixeles del modelo (la pila de matrices ya debe estar escalada a 1/16).
+     */
+    private static void drawPivotSpace(MatrixStack matrices, VertexConsumer vc, int light, int overlay,
+                                       float deploy, float swing, float time) {
         float eased = smooth(deploy);
         float slash = swing > 0.0f ? MathHelper.sin(MathHelper.sqrt(swing) * (float) Math.PI) : 0.0f;
-        float bladeAngle = MantisBladesParts.HOUSING_ANGLE
-                + (MantisBladesParts.BLADE_ANGLE - MantisBladesParts.HOUSING_ANGLE) * eased
+        // Ángulo de la hoja respecto a la carcasa: 0 = plegada, 22.5 = desplegada
+        float relAngle = (MantisBladesParts.BLADE_ANGLE - MantisBladesParts.HOUSING_ANGLE) * eased
                 + 14.0f * slash * eased;
         float bladeScale = (0.12f + 0.88f * smooth(MathHelper.clamp((deploy - 0.15f) / 0.85f, 0.0f, 1.0f)))
                 * (1.0f + 0.06f * slash);
@@ -63,26 +132,14 @@ public class MantisBladesRenderer implements BuiltinItemRendererRegistry.Dynamic
         float transition = deploy > 0.0f && deploy < 1.0f ? 1.0f - Math.abs(2.0f * deploy - 1.0f) : 0.0f;
         float bright = MathHelper.clamp(pulse * (0.35f + 0.65f * eased) + 0.5f * transition + 0.6f * slash, 0.0f, 1.0f);
         int glowRgb = Math.round(255.0f * bright);
-
-        VertexConsumer vc = consumers.getBuffer(RenderLayer.getEntityCutoutNoCull(TEXTURE));
         int fullBright = LightmapTextureManager.MAX_LIGHT_COORDINATE;
-        float px = MantisBladesParts.PIVOT_X;
-        float py = MantisBladesParts.PIVOT_Y;
-
-        matrices.push();
-        matrices.scale(1.0f / 16.0f, 1.0f / 16.0f, 1.0f / 16.0f);
 
         // ---- Carcasa del antebrazo ----
-        matrices.push();
-        matrices.translate(px, py, 8.0f);
-        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(MantisBladesParts.HOUSING_ANGLE));
         drawParts(matrices, vc, 0, false, light, fullBright, overlay, glowRgb);
-        matrices.pop();
 
-        // ---- Hoja: el cuerpo de la base no se escala, el resto sale como un resorte ----
+        // ---- Hoja: la base no se escala, el resto sale como un resorte ----
         matrices.push();
-        matrices.translate(px, py, 8.0f);
-        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(bladeAngle));
+        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(relAngle));
         drawParts(matrices, vc, 1, false, light, fullBright, overlay, glowRgb);
         float o = MantisBladesParts.BLADE_SCALE_ORIGIN;
         matrices.translate(o, 0.0f, 0.0f);
@@ -92,29 +149,21 @@ public class MantisBladesRenderer implements BuiltinItemRendererRegistry.Dynamic
         matrices.pop();
 
         // ---- Brazo articulado de dos tramos (cinemática inversa) ----
-        float[] h1 = rotate(MantisBladesParts.HOUSING_ANGLE, MantisBladesParts.H1_LX, MantisBladesParts.H1_LY);
+        float h1x = MantisBladesParts.H1_LX;
+        float h1y = MantisBladesParts.H1_LY;
         float bx = o + (MantisBladesParts.B1_LX - o) * bladeScale;
-        float[] b1 = rotate(bladeAngle, bx, MantisBladesParts.B1_LY);
-        float h1x = px + h1[0];
-        float h1y = py + h1[1];
-        float tx = px + b1[0];
-        float ty = py + b1[1];
-
-        float dx = tx - h1x;
-        float dy = ty - h1y;
-        float dist = (float) Math.sqrt(dx * dx + dy * dy);
+        float[] b1 = rotate(relAngle, bx, MantisBladesParts.B1_LY);
+        float dx = b1[0] - h1x;
+        float dy = b1[1] - h1y;
+        float rawDist = (float) Math.sqrt(dx * dx + dy * dy);
         float a = MantisBladesParts.LEN_A;
         float b = MantisBladesParts.LEN_B;
-        dist = MathHelper.clamp(dist, Math.abs(a - b) + 0.05f, a + b - 0.05f);
-        float ux;
-        float uy;
-        if (Math.sqrt(dx * dx + dy * dy) < 1.0e-4) {
-            ux = 1.0f;
-            uy = 0.0f;
-        } else {
-            float inv = 1.0f / (float) Math.sqrt(dx * dx + dy * dy);
-            ux = dx * inv;
-            uy = dy * inv;
+        float dist = MathHelper.clamp(rawDist, Math.abs(a - b) + 0.05f, a + b - 0.05f);
+        float ux = 1.0f;
+        float uy = 0.0f;
+        if (rawDist > 1.0e-4f) {
+            ux = dx / rawDist;
+            uy = dy / rawDist;
         }
         float endX = h1x + ux * dist;
         float endY = h1y + uy * dist;
@@ -128,11 +177,7 @@ public class MantisBladesRenderer implements BuiltinItemRendererRegistry.Dynamic
         joint(matrices, vc, h1x, h1y, light, fullBright, overlay, glowRgb);
         joint(matrices, vc, jx, jy, light, fullBright, overlay, glowRgb);
         joint(matrices, vc, endX, endY, light, fullBright, overlay, glowRgb);
-
-        matrices.pop();
     }
-
-    // ------------------------------------------------------------------ piezas
 
     /** Dibuja las piezas de un marco. Para la hoja: scaled=false las de la base, true las que se escalan. */
     private static void drawParts(MatrixStack matrices, VertexConsumer vc, int frame, boolean scaled,
@@ -159,7 +204,7 @@ public class MantisBladesRenderer implements BuiltinItemRendererRegistry.Dynamic
         float len = (float) Math.sqrt(dx * dx + dy * dy);
         float angle = (float) Math.toDegrees(Math.atan2(dy, dx));
         matrices.push();
-        matrices.translate(x1, y1, 8.0f);
+        matrices.translate(x1, y1, 0.0f);
         matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(angle));
         drawBox(matrices, vc, 0.0f, -0.5f, -1.25f, len, 0.5f, -0.65f, UV_WHITE, light, overlay, 255);
         drawBox(matrices, vc, 0.0f, -0.5f, 0.65f, len, 0.5f, 1.25f, UV_WHITE, light, overlay, 255);
@@ -170,7 +215,7 @@ public class MantisBladesRenderer implements BuiltinItemRendererRegistry.Dynamic
     private static void joint(MatrixStack matrices, VertexConsumer vc, float x, float y,
                               int light, int fullBright, int overlay, int glowRgb) {
         matrices.push();
-        matrices.translate(x, y, 8.0f);
+        matrices.translate(x, y, 0.0f);
         drawBox(matrices, vc, -0.8f, -0.8f, -1.5f, 0.8f, 0.8f, 1.5f, UV_CLAMP, light, overlay, 255);
         drawBox(matrices, vc, -0.35f, -0.35f, -1.75f, 0.35f, 0.35f, 1.75f, UV_CYAN, fullBright, overlay, glowRgb);
         matrices.pop();

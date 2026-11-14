@@ -1,11 +1,14 @@
 {
   "itemGroup.edgerunners.main": "Edgerunners",
   "item.edgerunners.sandevistan": "Sandevistan",
-  "item.edgerunners.sandevistan.tooltip": "Right-click: you move at full speed while time slows around you (8 blocks). 30s cooldown.",
+  "item.edgerunners.sandevistan.tooltip": "Wear it in the chest slot, then press V: you move at full speed while time almost freezes around you (20 blocks). 30s cooldown.",
   "item.edgerunners.mantis_blades": "Mantis Blades",
   "item.edgerunners.mantis_blades.tooltip": "Fast blades that leave targets bleeding. One blade on each arm. Right-click: retract / deploy.",
   "item.edgerunners.stim": "Stim Injector",
   "item.edgerunners.stim.tooltip": "Right-click: quick regeneration and absorption. Single use.",
   "effect.edgerunners.cyberpsychosis": "Cyberpsychosis",
-  "effect.edgerunners.sandevistan": "Sandevistan"
+  "effect.edgerunners.sandevistan": "Sandevistan",
+  "key.edgerunners.sandevistan": "Sandevistan (press key)",
+  "key.categories.edgerunners": "Edgerunners",
+  "message.edgerunners.sandevistan_not_worn": "You need to wear the Sandevistan in the chest slot"
 }

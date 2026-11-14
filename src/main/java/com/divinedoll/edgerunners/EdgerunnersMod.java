@@ -14,6 +14,7 @@ public class EdgerunnersMod implements ModInitializer {
     public void onInitialize() {
         ModEffects.register();
         ModItems.register();
+        ModNetworking.register();
         LOGGER.info("Edgerunners cargado.");
     }
 }

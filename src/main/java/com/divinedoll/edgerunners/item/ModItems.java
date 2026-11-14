@@ -14,7 +14,7 @@ import net.minecraft.util.Rarity;
 
 public class ModItems {
     public static final Item SANDEVISTAN = new SandevistanItem(
-            new FabricItemSettings().maxCount(1).rarity(Rarity.EPIC));
+            new FabricItemSettings().rarity(Rarity.EPIC));
     public static final Item MANTIS_BLADES = new MantisBladesItem(
             new FabricItemSettings().rarity(Rarity.RARE));
     public static final Item STIM = new StimItem(
